@@ -1,0 +1,7 @@
+.cards {
+  color: white;
+  background-color: #ffffff28;
+  border-radius: 16px; /* 애플 스타일의 중간 정도 둥근 모서리 */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 약간의 그림자 */
+  overflow: hidden;
+}
