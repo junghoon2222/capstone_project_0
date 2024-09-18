@@ -10,8 +10,8 @@ and Face Recognition
 - Hot-word Awake (porcupine)
 - Transcribe: Whsiper v3-large
 - Crawling for Weather Information and Realtime Informations (From Naver)
-API
-- OpenAI: gpt-4o-mini / gpt-4o
+
+- API / OpenAI: gpt-4o-mini / gpt-4o
 
 ### Face-Recognition / Body Segmentation
 - Language: Python / FastAPI, WebSocket
