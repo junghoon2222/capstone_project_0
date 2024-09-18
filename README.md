@@ -4,7 +4,7 @@
 AI assistants with real-time informations
 and Face Recognition
 
-## Backend
+## Backend (RTX 3090 / 24GB)
 ### AI assistant
 - Language: Python / FastAPI, websocket
 - Hot-word Awake (porcupine)
@@ -17,7 +17,7 @@ and Face Recognition
 - Language: Python / FastAPI, websocket
 - YOLOv8 / SAM2 
 
-## Frontend
+## Frontend (Raspberry Pi4)
 ### React
 - Language: Javascript / React.js
   
