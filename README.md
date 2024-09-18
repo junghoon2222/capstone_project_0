@@ -8,10 +8,10 @@ and Face Recognition
 ### AI assistant
 - Language: Python / FastAPI, WebSocket
 - Hot-word Awake (porcupine)
-- Transcribe: Whsiper v3-large
+- Transcribe: openai Whsiper v3-large
 - Crawling for Weather Information and Realtime Informations (From Naver)
 
-- API || OpenAI: gpt-4o-mini / gpt-4o
+- API || openai: gpt-4o-mini / gpt-4o
 
 ### Face-Recognition / Body Segmentation
 - Language: Python / FastAPI, WebSocket
