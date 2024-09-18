@@ -2,10 +2,10 @@
 
 ## main features
 AI assistants with real-time informations
-Face Recognition
+and Face Recognition
 
-# Backend
-## AI assistant
+## Backend
+### AI assistant
 - Lang: Python / FastAPI, WebSocket
 - Voice Hot-word Awake (porcupine)
 - Voice Transcribe: Whsiper v3-large
@@ -13,11 +13,11 @@ Face Recognition
 API
 - OpenAI: gpt-4o-mini / gpt-4o
 
-## Face-Recognition / Body Segmentation
+### Face-Recognition / Body Segmentation
 - Lang: Python / FastAPI, WebSocket
 - YOLOv8 / SAM2 
 
-# Frontend
-## React
+## Frontend
+### React
 - Lang: Javascript / React.js
   
