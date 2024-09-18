@@ -6,7 +6,7 @@ and Face Recognition
 
 ## Backend
 ### AI assistant
-- Lang: Python / FastAPI, WebSocket
+- Language: Python / FastAPI, WebSocket
 - Hot-word Awake (porcupine)
 - Transcribe: Whsiper v3-large
 - Crawling for Weather Information and Realtime Informations (From Naver)
@@ -14,10 +14,10 @@ API
 - OpenAI: gpt-4o-mini / gpt-4o
 
 ### Face-Recognition / Body Segmentation
-- Lang: Python / FastAPI, WebSocket
+- Language: Python / FastAPI, WebSocket
 - YOLOv8 / SAM2 
 
 ## Frontend
 ### React
-- Lang: Javascript / React.js
+- Language: Javascript / React.js
   
