@@ -1,6 +1,6 @@
 # Smart Mirror with AI assistant with Computer Vision
 
-## main features
+## Main Features
 AI assistants with real-time informations
 and Face Recognition
 
