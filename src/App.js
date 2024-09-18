@@ -31,7 +31,7 @@ function App() {
     let retryCount = 0;
 
     const connectWebSocket = () => {
-      socket = new WebSocket("ws://182.218.49.58:50008");
+      socket = new WebSocket("ws://182.218.49.58:50007");
 
       socket.onopen = () => {
         console.log("Assistant WebSocket Connected");

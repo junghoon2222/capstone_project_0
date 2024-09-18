@@ -384,7 +384,7 @@ if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=50006)  # 날씨 엔드포인트 (프론트에서 접근)
 
     # Audio 전송 소켓 서버 실행
-    start_server_2 = websockets.serve(record_and_send_audio, "0.0.0.0", 50008)
+    start_server = websockets.serve(record_and_send_audio, "0.0.0.0", 50007)
     print("WebSocket server started on ws://localhost:50008")
 
-    asyncio.run(start_server_2)
+    asyncio.run(start_server)
