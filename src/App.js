@@ -145,20 +145,23 @@ function App() {
           >
             <div className="col-2"></div>
             <div className="col-8">
-              <div class="notifications-container">
-                <div class="success">
-                  <div class="flex">
-                    <div class="recording-circle"></div>
-                    <div class="success-prompt-wrap">
-                      <p class="success-prompt-heading">{userText}</p>
-                      <div class="success-prompt-prompt">
+              <div className="notifications-container">
+                <div className="success">
+                  <div className="flex">
+                    <div className="recording-circle"></div>
+                    <div className="success-prompt-wrap">
+                      <p className="success-prompt-heading">{userText}</p>
+                      <div className="success-prompt-prompt">
                         <p>{siriText}</p>
                       </div>
-                      <div class="success-button-container">
-                        <button type="button" class="success-button-main">
+                      <div className="success-button-container">
+                        <button type="button" className="success-button-main">
                           재전송
                         </button>
-                        <button type="button" class="success-button-secondary">
+                        <button
+                          type="button"
+                          className="success-button-secondary"
+                        >
                           초기화
                         </button>
                       </div>
