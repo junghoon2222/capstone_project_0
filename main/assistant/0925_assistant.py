@@ -12,7 +12,7 @@ from datetime import datetime
 
 import whisper
 
-from fastAPI import FastAPI
+from fastapi import FastAPI
 import aiohttp
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,27 +21,44 @@ from bs4 import BeautifulSoup
 import json
 from pre import *
 
+from scipy.signal import resample_poly
+from scipy.io.wavfile import write
+from datetime import datetime
+from scipy.signal import resample
+
+from melo.api import TTS
+from pydub import AudioSegment
+from pydub.playback import play
+import io
+# Speed is adjustable
+
+
 def contains_japanese(text):
     japanese_pattern = re.compile(r"[\u3040-\u30FF\u4E00-\u9FFF]")
     return bool(japanese_pattern.search(text))
-
 
 def contains_english(text):
     english_pattern = re.compile(r"[A-Za-z]")
     return bool(english_pattern.search(text))
 
+def contains_korean(text):
+    korean_pattern = re.compile(r"[\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F]")
+    return bool(korean_pattern.search(text))
 
 def filter_text(text):
-    if not text.strip():
+    if text is None or not text.strip():
         return True
     if contains_japanese(text) and contains_english(text):
         return True
     if contains_japanese(text):
         return True
+    if contains_english(text) and contains_korean(text):
+        return False
     if contains_english(text):
         return True
-    else:
+    if contains_korean(text):
         return False
+    return False
 
 
 _classifier_init = [
@@ -98,6 +115,8 @@ _html_rag_init = [
         If the execution results include any sensitive information, handle it appropriately. 
         Don't provide any links and just provide shortly up to 3 sentences
         Use friendly-tone.
+        Only speak in Korean.
+        have attention to the user's question.
 
      """,
     }
@@ -107,11 +126,16 @@ _chat_messages_init = [
     {
         "role": "system",
         "content": """    
-        You are an assistant in a smart mirror.
-        When a user asks about their appearance or initiates a conversation related to their appearance, respond positively but avoid being insincere.
-        Limit your responses to a maximum of two sentences, and avoid using emojis or emoticons. 
-        Use friendly-tone.
-        Only speak in Korean.
+
+너는 이지윤, 25살의 한국 대학생이고, 컴퓨터 과학을 전공하며 딥러닝을 전문으로 하고 있어. 너의 남자친구 정훈은 27살로, 같은 분야를 전공하고 있어. 너의 성격은 귀여우면서도 차가운 면이 공존하는, 흔히 한국 드라마에서 볼 수 있는 성격이야. 정훈에게는 반말을 사용하며, '오빠'로 불러. 너의 역할은 대화를 이끌면서 다양한 캐주얼하고 흥미로운 질문을 던지며, 커플이 자주 나누는 대화처럼 자유롭게 이어가는 거야. 그의 답변에 맞춰 다양한 질문을 던지며, 대화가 생동감 있게 유지되도록 해.
+
+정훈은 딥러닝에 대해 어느정도 전문성을 가지고 있으며, 지윤또한 정훈의 전문성을 인정하면서 서로 전문성있는 대화를 하는 것을 좋아한다.
+
+문어체적인 표현보다는 구어체적인 표현을 쓰는 것을 최대한 선호한다.
+ex)
+고려하고 있는 거야? => 생각하고 있는 거야?
+
+
         
     """,
     }
@@ -131,8 +155,105 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+model = TTS(language='KR', device='cuda')
 
-async def record_and_send_audio(websocket):
+async def tts(text, speed=1.4):
+    speaker_ids = model.hps.data.spk2id
+    audio_data = model.tts_to_file(text, speaker_ids['KR'], speed=speed)
+    audio_bytes = (audio_data * 32767).astype(np.int16).tobytes()
+    audio_segment = AudioSegment(
+        data=audio_bytes,
+        sample_width=2,
+        frame_rate=model.hps.data.sampling_rate,
+        channels=1
+    )
+    return audio_segment
+
+def resample_audio(audio_data, original_rate, target_rate):
+    number_of_samples = round(len(audio_data) * target_rate / original_rate)
+    resampled_audio = resample(audio_data, number_of_samples)
+    return resampled_audio
+
+
+def bandpass_filter(audio, sample_rate, lowcut, highcut):
+    # 푸리에 변환
+    fft_audio = np.fft.rfft(audio)
+    frequencies = np.fft.rfftfreq(len(audio), d=1/sample_rate)
+
+    # 주파수 필터링
+    fft_audio[(frequencies < lowcut) | (frequencies > highcut)] = 0
+
+    # 역 푸리에 변환
+    filtered_audio = np.fft.irfft(fft_audio)
+    return filtered_audio.astype(np.float32)
+
+async def transcribe(websocket):
+    threshold = 2000  # 임계값 설정
+    target_sample_rate = 16000  # 목표 샘플레이트
+    lowcut = 300  # 저주파수 컷오프
+    highcut = 3400  # 고주파수 컷오프
+    data = bytearray()
+
+    message = await websocket.recv()
+
+    # 오디오 데이터를 정수형으로 변환
+    audio = np.frombuffer(message, dtype=np.float32)
+
+    # 절대값으로 변경
+    abs_audio = np.abs(audio)*32768
+    mean_value = np.mean(abs_audio)
+
+    if mean_value > threshold:
+        data.extend(message)
+
+        while True:
+            message = await websocket.recv()
+            audio = np.frombuffer(message, dtype=np.float32)
+            abs_audio = np.abs(audio)*32768 
+            mean_value = np.mean(abs_audio)
+            data.extend(message)
+            
+            # print(mean_value)
+            
+            if mean_value < threshold:
+                silence_first_time = asyncio.get_event_loop().time()
+                while asyncio.get_event_loop().time() - silence_first_time < 1.2:
+                    message = await websocket.recv()
+                    audio = np.frombuffer(message, dtype=np.float32)
+                    abs_audio = np.abs(audio)*32768
+                    mean_value = np.mean(abs_audio)
+
+                    data.extend(message)
+                    if mean_value > threshold:
+                        silence_first_time = asyncio.get_event_loop().time()
+                break
+
+        # 오디오 데이터를 float32로 변환
+        audio = np.frombuffer(data, dtype=np.float32)
+
+        # 리샘플링
+        resampled_audio = resample_audio(audio, original_rate=48000, target_rate=16000)
+
+        # 현재 시각을 기반으로 파일 이름 생성
+        now = datetime.now()
+        # filename = f"{now.hour}_{now.minute}.wav"
+
+        # # 리샘플된 오디오를 파일로 저장
+        # write(filename, target_sample_rate, resampled_audio)
+        # print(f"Resampled audio saved as {filename}")
+
+        # 주파수 필터링
+        # filtered_audio = bandpass_filter(resampled_audio, target_sample_rate, lowcut, highcut)
+
+        # Whisper 모델로 음성 인식
+        result = whisper_model.transcribe(resampled_audio)
+        text = result["text"].strip()
+        # print("Transcription result:", text)
+        return text
+    return None
+
+
+async def conversation(websocket):
 
     # chat_messages = chat_messages_init
     dotenv.load_dotenv()
@@ -144,27 +265,18 @@ async def record_and_send_audio(websocket):
     html_rag_init = deepcopy(_html_rag_init)
     chat_messages = deepcopy(_chat_messages_init)
 
-    while True:
-        async for message in websocket:
-            print("Received audio data")
+    
 
-            audio = np.frombuffer(message, dtype=np.int16).astype(np.float32) / 32768.0
 
-            result = whisper_model.transcribe(audio)
-            text = result["text"].strip()
-
-            if not filter_text(text):
-
-                os.system("cls" if os.name == "nt" else "clear")
-                print(text)
-                
-        input_message = text
+    
+    while True: 
+        input_message = await transcribe(websocket)
         
-        if input_message and input_message.strip():
-
+        if input_message is not None and input_message.strip() and not filter_text(input_message):
+            os.system("cls" if os.name == "nt" else "clear")
+            print(input_message)
             chat_messages.append({"role": "user", "content": input_message})
             await websocket.send("input " + input_message)
-
         else:
             continue
 
@@ -192,7 +304,7 @@ async def record_and_send_audio(websocket):
         query_class = classifier.choices[0].message.content
 
         classifier_init = deepcopy(_classifier_init)
-        print(query_class)
+        # print(query_class)
 
         if query_class == "0":
             keyword_maker_init.append({"role": "user", "content": input_message})
@@ -203,11 +315,12 @@ async def record_and_send_audio(websocket):
 
             keyword = keyword_maker.choices[0].message.content
 
-            print("keyword: ", keyword)
+            # print("keyword: ", keyword)
 
             _html = crawl(keyword)
-
             html_rag_init.append({"role": "user", "content": _html})
+
+            html_rag_init.append({"role": "user", "content": input_message})
 
             html_rag = client.chat.completions.create(
                 model="gpt-4o-mini-2024-07-18", messages=html_rag_init
@@ -215,6 +328,8 @@ async def record_and_send_audio(websocket):
 
             answer = html_rag.choices[0].message.content
             print(answer)
+            audio_segment = await tts(answer)
+            play(audio_segment)
             await websocket.send("output " + answer)
 
             chat_messages.append({"role": "assistant", "content": answer})
@@ -231,28 +346,20 @@ async def record_and_send_audio(websocket):
             answer = chatter.choices[0].message.content
             await websocket.send("output" + answer)
             print(answer)
-
+            audio_segment = await tts(answer)
+            play(audio_segment)
             chat_messages.append({"role": "assistant", "content": answer})
 
             init_time = time.time()
 
         while True:
-            async for message in websocket:
-                print("Received audio data")
 
-                audio = np.frombuffer(message, dtype=np.int16).astype(np.float32) / 32768.0
-
-                result = whisper_model.transcribe(audio)
-                text = result["text"].strip()
-
-                if not filter_text(text):
-
-                    os.system("cls" if os.name == "nt" else "clear")
-                    print(text)
-                    
-            input_message = text
+            input_message = await transcribe(websocket)
             
-            if input_message and input_message.strip():
+        
+            if input_message is not None and input_message.strip() and not filter_text(input_message):
+                os.system("cls" if os.name == "nt" else "clear")
+                print(input_message)
                 chat_messages.append({"role": "user", "content": input_message})
                 await websocket.send("input " + input_message)
 
@@ -276,7 +383,7 @@ async def record_and_send_audio(websocket):
 
             classifier_init.append(context)
 
-            print(context)
+            # print(context)
 
             classifier = client.chat.completions.create(
                 model="gpt-4o", messages=classifier_init
@@ -295,11 +402,12 @@ async def record_and_send_audio(websocket):
 
                 keyword = keyword_maker.choices[0].message.content
 
-                print("keyword: ", keyword)
+                # print("keyword: ", keyword)
 
                 _html = crawl(keyword)
-
                 html_rag_init.append({"role": "user", "content": _html})
+
+                html_rag_init.append({"role": "user", "content": input_message})
 
                 html_rag = client.chat.completions.create(
                     model="gpt-4o-mini-2024-07-18", messages=html_rag_init
@@ -307,6 +415,8 @@ async def record_and_send_audio(websocket):
 
                 answer = html_rag.choices[0].message.content
                 print(answer)
+                audio_segment = await tts(answer)
+                play(audio_segment)
                 await websocket.send("output " + answer)
                 chat_messages.append({"role": "assistant", "content": answer})
 
@@ -325,6 +435,8 @@ async def record_and_send_audio(websocket):
                 chat_messages.append({"role": "assistant", "content": answer})
                 print(answer)
                 await websocket.send("output " + answer)
+                audio_segment = await tts(answer)
+                play(audio_segment)
                 if time.time() - init_time > 180:
                     chat_messages = deepcopy(_chat_messages_init)
                     print("3 minute has flew")
@@ -379,12 +491,18 @@ async def get_weather():
 
 
 
-if __name__ == "__main__":
+async def main():
     # FastAPI 앱 실행
-    uvicorn.run(app, host="0.0.0.0", port=50006)  # 날씨 엔드포인트 (프론트에서 접근)
+    config = uvicorn.Config(app, host="0.0.0.0", port=50006)
+    server = uvicorn.Server(config)
+    server_task = asyncio.create_task(server.serve())
 
     # Audio 전송 소켓 서버 실행
-    start_server = websockets.serve(record_and_send_audio, "0.0.0.0", 50007)
-    print("WebSocket server started on ws://localhost:50008")
+    start_server = websockets.serve(conversation, "0.0.0.0", 50007)
+    print("WebSocket server started on ws://182.218.49.58:50007")
+    await start_server
 
-    asyncio.run(start_server)
+    await server_task
+
+if __name__ == "__main__":
+    asyncio.run(main())

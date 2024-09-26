@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
+import { PorcupineWorkerFactory } from "@picovoice/porcupine-web";
 
 import Weather from "./components/weather";
 import Clock from "./components/Clock";
 import Card from "./components/Cards";
+import Assistant from "./components/Assistant";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
 import "./App.css";
-import "./assistant.css";
 
 library.add(faChevronDown, faChevronUp);
 
@@ -23,22 +24,23 @@ function App() {
     "안녕하세요! \n 스마트 미러 어시스턴트입니다."
   );
 
+  const websocketRef = useRef(null);
+
   useEffect(() => {
-    let socket;
     let reconnectTimeout;
     const MAX_RETRIES = 100;
     const RECONNECT_INTERVAL = 3000;
     let retryCount = 0;
 
     const connectWebSocket = () => {
-      socket = new WebSocket("ws://182.218.49.58:50007");
+      websocketRef.current = new WebSocket("ws://182.218.49.58:50007");
 
-      socket.onopen = () => {
+      websocketRef.current.onopen = () => {
         console.log("Assistant WebSocket Connected");
         retryCount = 0;
       };
 
-      socket.onmessage = (event) => {
+      websocketRef.current.onmessage = (event) => {
         const message = event.data;
 
         if (message.startsWith("input ")) {
@@ -48,14 +50,14 @@ function App() {
         }
       };
 
-      socket.onclose = () => {
+      websocketRef.current.onclose = () => {
         console.log("Assistant WebSocket Disconnected");
         attemptReconnect();
       };
 
-      socket.onerror = (error) => {
-        console.log("Assistant WebSocket Error Occured: ", error);
-        socket.close();
+      websocketRef.current.onerror = (error) => {
+        console.log("Assistant WebSocket Error Occurred: ", error);
+        websocketRef.current.close();
       };
     };
 
@@ -74,7 +76,7 @@ function App() {
     connectWebSocket();
 
     return () => {
-      if (socket) socket.close();
+      if (websocketRef.current) websocketRef.current.close();
       if (reconnectTimeout) clearTimeout(reconnectTimeout);
     };
   }, []);
@@ -146,21 +148,7 @@ function App() {
               <div class="notifications-container">
                 <div class="success">
                   <div class="flex">
-                    <div class="recording-circle">
-                      {/* <svg
-                        class="ready-svg"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        aria-hidden="true"
-                      >
-                        <path
-                          fill-rule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                          clip-rule="evenodd"
-                        ></path>
-                      </svg> */}
-                    </div>
+                    <div class="recording-circle"></div>
                     <div class="success-prompt-wrap">
                       <p class="success-prompt-heading">{userText}</p>
                       <div class="success-prompt-prompt">
@@ -195,6 +183,8 @@ function App() {
 
   return (
     <div className="container-fluid">
+      <Assistant websocket={websocketRef.current} />
+
       {(mode === "active" || mode === "signup") && renderHeader()}
       {mode === "active" && renderCards()}
       {mode === "signup" && renderSignup()}

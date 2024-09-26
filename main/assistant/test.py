@@ -117,8 +117,9 @@ _html_rag_init = [
         If the execution results include any sensitive information, handle it appropriately. 
         Don't provide any links and just provide shortly up to 3 sentences
         Use friendly-tone.
-
-     """,
+        Only speak in Korean.
+        have attention to the user's question.
+    """,
     }
 ]
 
@@ -210,8 +211,6 @@ async def record_and_send_audio():
         now = datetime.now()
 
         formatted_time = now.strftime("%Y-%m-%d %H:%M")
-
-        context.append("현재시간 :", formatted_time)
 
         for message in chat_messages[1:]:
             context.append(": ".join(message.values()))
@@ -315,18 +314,16 @@ async def record_and_send_audio():
                 print("keyword: ", keyword)
 
                 _html = crawl(keyword)
-
+                html_rag_init.append({"role": "user", "content": input_message})
                 html_rag_init.append({"role": "user", "content": _html})
-
+                print(html_rag_init)
                 html_rag = client.chat.completions.create(
                     model="gpt-4o-mini-2024-07-18", messages=html_rag_init
                 )
-
                 answer = html_rag.choices[0].message.content
                 print("rag: ", answer)
 
                 chat_messages.append({"role": "assistant", "content": answer})
-
                 html_rag_init = deepcopy(_html_rag_init)
                 if time.time() - init_time > 180:
                     chat_messages = deepcopy(_chat_messages_init)

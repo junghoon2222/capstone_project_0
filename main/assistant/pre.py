@@ -32,10 +32,11 @@ def crawl(query):
             
             # 텍스트 전처리
             cleaned_text = clean_text(text_only)
+            cleaned_text = cleaned_text[:1000]
             with open('final_extracted_text.txt', 'w', encoding='utf-8') as file:
                 file.write(cleaned_text)
             
-            print("텍스트가 'final_extracted_text.txt' 파일에 저장되었습니다.")
+            # print("텍스트가 'final_extracted_text.txt' 파일에 저장되었습니다.")
             return cleaned_text
             # 텍스트 파일로 저장
 
@@ -47,3 +48,4 @@ def crawl(query):
 if __name__ == '__main__':
     query = '일론머스크 재산'
     crawl(query)
+    

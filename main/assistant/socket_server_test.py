@@ -4,7 +4,7 @@ import whisper
 import numpy as np
 
 from fastapi import FastAPI
-import aiohttp  # requests 대신 aiohttp 사용
+import aiohttp
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 
