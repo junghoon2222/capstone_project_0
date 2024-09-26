@@ -46,7 +46,7 @@ function Weather() {
     <div>
       {weather ? (
         <div className="grid-container">
-          <div className="city">용원동 현재 날씨</div>
+          <div className="city">구미 현재 날씨</div>
           <div className="today" id="today-date">
             {date} {/* 날짜 표시 */}
           </div>
