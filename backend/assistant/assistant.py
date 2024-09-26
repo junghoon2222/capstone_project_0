@@ -197,7 +197,7 @@ async def transcribe(websocket):
     # 절대값으로 변경
     abs_audio = np.abs(audio)*32768
     mean_value = np.mean(abs_audio)
-
+    print(mean_value)
     if mean_value > threshold:
         data.extend(message)
 
@@ -208,7 +208,7 @@ async def transcribe(websocket):
             mean_value = np.mean(abs_audio)
             data.extend(message)
             
-            # print(mean_value)
+            print(mean_value)
             
             if mean_value < threshold:
                 silence_first_time = asyncio.get_event_loop().time()

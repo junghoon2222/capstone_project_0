@@ -152,7 +152,7 @@ app.add_middleware(
 
 model = TTS(language='KR', device='cuda')
 
-async def tts(text, speed=1.2):
+async def tts(text, speed=1.6):
     speaker_ids = model.hps.data.spk2id
     audio_data = model.tts_to_file(text, speaker_ids['KR'], speed=speed)
     audio_bytes = (audio_data * 32767).astype(np.int16).tobytes()
@@ -349,7 +349,7 @@ async def conversation(websocket):
 
         while True:
 
-            input_message = await transcribe(websocket)
+            input_message = input('input: ')
             
         
             if input_message is not None and input_message.strip() and not filter_text(input_message):

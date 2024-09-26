@@ -270,7 +270,7 @@ async def conversation(websocket):
 
     
     while True: 
-        input_message = await transcribe(websocket)
+        input_message = input("input: ")
         
         if input_message is not None and input_message.strip() and not filter_text(input_message):
             os.system("cls" if os.name == "nt" else "clear")
@@ -354,7 +354,7 @@ async def conversation(websocket):
 
         while True:
 
-            input_message = await transcribe(websocket)
+            input_message = input("input: ")
             
         
             if input_message is not None and input_message.strip() and not filter_text(input_message):
