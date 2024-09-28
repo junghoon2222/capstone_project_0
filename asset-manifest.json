@@ -1,22 +1,22 @@
 {
   "files": {
-    "main.css": "/jeonghun/static/css/main.cfd73693.css",
-    "main.js": "/jeonghun/static/js/main.e9585999.js",
-    "static/js/453.7a2bac5a.chunk.js": "/jeonghun/static/js/453.7a2bac5a.chunk.js",
-    "static/media/SF-Pro.ttf": "/jeonghun/static/media/SF-Pro.2f9118d7e608bf94730c.ttf",
-    "static/media/ChosunCentennial_ttf.ttf": "/jeonghun/static/media/ChosunCentennial_ttf.5a0298767b47f2acc2c9.ttf",
-    "static/media/TMONBlack.ttf": "/jeonghun/static/media/TMONBlack.ac3ea8e69b8eb9c8a390.ttf",
-    "static/media/SF-Pro-Display-Regular.otf": "/jeonghun/static/media/SF-Pro-Display-Regular.d95919824936a9bf4051.otf",
-    "static/media/GodoM.ttf": "/jeonghun/static/media/GodoM.334fa4bf225e89e11267.ttf",
-    "static/media/GmarketSansMedium.otf": "/jeonghun/static/media/GmarketSansMedium.3b975ddd58dcbe363ee5.otf",
-    "static/media/GmarketSansLight.otf": "/jeonghun/static/media/GmarketSansLight.5d3bc33796f1cb3705f8.otf",
-    "index.html": "/jeonghun/index.html",
-    "main.cfd73693.css.map": "/jeonghun/static/css/main.cfd73693.css.map",
-    "main.e9585999.js.map": "/jeonghun/static/js/main.e9585999.js.map",
-    "453.7a2bac5a.chunk.js.map": "/jeonghun/static/js/453.7a2bac5a.chunk.js.map"
+    "main.css": "/jeonghun.github.io/static/css/main.197c1244.css",
+    "main.js": "/jeonghun.github.io/static/js/main.951fb0a3.js",
+    "static/js/453.7a2bac5a.chunk.js": "/jeonghun.github.io/static/js/453.7a2bac5a.chunk.js",
+    "static/media/SF-Pro.ttf": "/jeonghun.github.io/static/media/SF-Pro.2f9118d7e608bf94730c.ttf",
+    "static/media/ChosunCentennial_ttf.ttf": "/jeonghun.github.io/static/media/ChosunCentennial_ttf.5a0298767b47f2acc2c9.ttf",
+    "static/media/TMONBlack.ttf": "/jeonghun.github.io/static/media/TMONBlack.ac3ea8e69b8eb9c8a390.ttf",
+    "static/media/SF-Pro-Display-Regular.otf": "/jeonghun.github.io/static/media/SF-Pro-Display-Regular.d95919824936a9bf4051.otf",
+    "static/media/GodoM.ttf": "/jeonghun.github.io/static/media/GodoM.334fa4bf225e89e11267.ttf",
+    "static/media/GmarketSansMedium.otf": "/jeonghun.github.io/static/media/GmarketSansMedium.3b975ddd58dcbe363ee5.otf",
+    "static/media/GmarketSansLight.otf": "/jeonghun.github.io/static/media/GmarketSansLight.5d3bc33796f1cb3705f8.otf",
+    "index.html": "/jeonghun.github.io/index.html",
+    "main.197c1244.css.map": "/jeonghun.github.io/static/css/main.197c1244.css.map",
+    "main.951fb0a3.js.map": "/jeonghun.github.io/static/js/main.951fb0a3.js.map",
+    "453.7a2bac5a.chunk.js.map": "/jeonghun.github.io/static/js/453.7a2bac5a.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.cfd73693.css",
-    "static/js/main.e9585999.js"
+    "static/css/main.197c1244.css",
+    "static/js/main.951fb0a3.js"
   ]
 }
