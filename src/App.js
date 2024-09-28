@@ -6,7 +6,7 @@ import { PorcupineWorkerFactory } from "@picovoice/porcupine-web";
 import Weather from "./components/weather";
 import Clock from "./components/Clock";
 import Card from "./components/Cards";
-import Assistant from "./components/Assistant";
+import AudioRecorder from "./components/Assistant";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -86,7 +86,7 @@ function App() {
       }
     };
 
-    connectWebSocket();
+    // connectWebSocket();
 
     return () => {
       if (websocketRef.current) websocketRef.current.close();
@@ -199,7 +199,7 @@ function App() {
 
   return (
     <div className="container-fluid">
-      <Assistant websocket={websocketRef.current} />
+      <AudioRecorder setUserText={setUserText} setSiriText={setSiriText} />
 
       {(mode === "active" || mode === "signup") && renderHeader()}
       {mode === "active" && renderCards()}
