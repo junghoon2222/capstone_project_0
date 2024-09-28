@@ -1,22 +1,22 @@
 {
   "files": {
-    "main.css": "/junghoon2222.github.io/static/css/main.1ce3b4d4.css",
-    "main.js": "/junghoon2222.github.io/static/js/main.d5bcde1c.js",
-    "static/js/453.7a2bac5a.chunk.js": "/junghoon2222.github.io/static/js/453.7a2bac5a.chunk.js",
-    "static/media/SF-Pro.ttf": "/junghoon2222.github.io/static/media/SF-Pro.2f9118d7e608bf94730c.ttf",
-    "static/media/ChosunCentennial_ttf.ttf": "/junghoon2222.github.io/static/media/ChosunCentennial_ttf.5a0298767b47f2acc2c9.ttf",
-    "static/media/TMONBlack.ttf": "/junghoon2222.github.io/static/media/TMONBlack.ac3ea8e69b8eb9c8a390.ttf",
-    "static/media/SF-Pro-Display-Regular.otf": "/junghoon2222.github.io/static/media/SF-Pro-Display-Regular.d95919824936a9bf4051.otf",
-    "static/media/GodoM.ttf": "/junghoon2222.github.io/static/media/GodoM.334fa4bf225e89e11267.ttf",
-    "static/media/GmarketSansMedium.otf": "/junghoon2222.github.io/static/media/GmarketSansMedium.3b975ddd58dcbe363ee5.otf",
-    "static/media/GmarketSansLight.otf": "/junghoon2222.github.io/static/media/GmarketSansLight.5d3bc33796f1cb3705f8.otf",
-    "index.html": "/junghoon2222.github.io/index.html",
-    "main.1ce3b4d4.css.map": "/junghoon2222.github.io/static/css/main.1ce3b4d4.css.map",
-    "main.d5bcde1c.js.map": "/junghoon2222.github.io/static/js/main.d5bcde1c.js.map",
-    "453.7a2bac5a.chunk.js.map": "/junghoon2222.github.io/static/js/453.7a2bac5a.chunk.js.map"
+    "main.css": "/capstone_project_0/static/css/main.63c22a7f.css",
+    "main.js": "/capstone_project_0/static/js/main.84049c7a.js",
+    "static/js/453.7a2bac5a.chunk.js": "/capstone_project_0/static/js/453.7a2bac5a.chunk.js",
+    "static/media/SF-Pro.ttf": "/capstone_project_0/static/media/SF-Pro.2f9118d7e608bf94730c.ttf",
+    "static/media/ChosunCentennial_ttf.ttf": "/capstone_project_0/static/media/ChosunCentennial_ttf.5a0298767b47f2acc2c9.ttf",
+    "static/media/TMONBlack.ttf": "/capstone_project_0/static/media/TMONBlack.ac3ea8e69b8eb9c8a390.ttf",
+    "static/media/SF-Pro-Display-Regular.otf": "/capstone_project_0/static/media/SF-Pro-Display-Regular.d95919824936a9bf4051.otf",
+    "static/media/GodoM.ttf": "/capstone_project_0/static/media/GodoM.334fa4bf225e89e11267.ttf",
+    "static/media/GmarketSansMedium.otf": "/capstone_project_0/static/media/GmarketSansMedium.3b975ddd58dcbe363ee5.otf",
+    "static/media/GmarketSansLight.otf": "/capstone_project_0/static/media/GmarketSansLight.5d3bc33796f1cb3705f8.otf",
+    "index.html": "/capstone_project_0/index.html",
+    "main.63c22a7f.css.map": "/capstone_project_0/static/css/main.63c22a7f.css.map",
+    "main.84049c7a.js.map": "/capstone_project_0/static/js/main.84049c7a.js.map",
+    "453.7a2bac5a.chunk.js.map": "/capstone_project_0/static/js/453.7a2bac5a.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.1ce3b4d4.css",
-    "static/js/main.d5bcde1c.js"
+    "static/css/main.63c22a7f.css",
+    "static/js/main.84049c7a.js"
   ]
 }
