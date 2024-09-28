@@ -9,7 +9,7 @@ from openai import OpenAI
 import dotenv
 from copy import deepcopy
 from datetime import datetime
-
+import ssl
 import whisper
 
 from fastapi import FastAPI
@@ -18,7 +18,6 @@ import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 
 from bs4 import BeautifulSoup
-import json
 from pre import *
 
 from scipy.signal import resample_poly
@@ -342,7 +341,13 @@ async def conversation(websocket):
             await websocket.send("output" + answer)
             print(answer)
             audio_segment = await tts(answer)
-            play(audio_segment)
+
+            # 메모리 버퍼에 파일을 저장하고 바이너리로 변환
+            buffer = io.BytesIO()
+            audio_segment.export(buffer, format="wav")
+            buffer.seek(0)
+
+            await websocket.send(buffer.read())
             chat_messages.append({"role": "assistant", "content": answer})
 
             init_time = time.time()
@@ -381,7 +386,7 @@ async def conversation(websocket):
             # print(context)
 
             classifier = client.chat.completions.create(
-                model="gpt-4o", messages=classifier_init
+                model="gpt-4o-mini-2024-07-18", messages=classifier_init
             )
 
             query_class = classifier.choices[0].message.content
@@ -411,7 +416,13 @@ async def conversation(websocket):
                 answer = html_rag.choices[0].message.content
                 print(answer)
                 audio_segment = await tts(answer)
-                play(audio_segment)
+
+                # 메모리 버퍼에 파일을 저장하고 바이너리로 변환
+                buffer = io.BytesIO()
+                audio_segment.export(buffer, format="wav")
+                buffer.seek(0)
+ 
+                await websocket.send(buffer.read())
                 await websocket.send("output " + answer)
                 chat_messages.append({"role": "assistant", "content": answer})
 
@@ -431,7 +442,13 @@ async def conversation(websocket):
                 print(answer)
                 await websocket.send("output " + answer)
                 audio_segment = await tts(answer)
-                play(audio_segment)
+
+                # 메모리 버퍼에 파일을 저장하고 바이너리로 변환
+                buffer = io.BytesIO()
+                audio_segment.export(buffer, format="wav")
+                buffer.seek(0)
+ 
+                await websocket.send(buffer.read())
                 if time.time() - init_time > 180:
                     chat_messages = deepcopy(_chat_messages_init)
                     print("3 minute has flew")
@@ -485,19 +502,23 @@ async def get_weather():
                 return {"error": "Failed to fetch weather data"}
 
 
+# SSL 인증서 및 키 파일 설정
 
 async def main():
     # FastAPI 앱 실행
-    config = uvicorn.Config(app, host="0.0.0.0", port=50006)
+    config = uvicorn.Config(app, host="0.0.0.0", port=50006, ssl_certfile="cert.pem", ssl_keyfile="key.pem")
     server = uvicorn.Server(config)
     server_task = asyncio.create_task(server.serve())
 
-    # Audio 전송 소켓 서버 실행
-    start_server = websockets.serve(conversation, "0.0.0.0", 50007)
-    print("WebSocket server started on ws://182.218.49.58:50007")
-    await start_server
+    # WSS(WebSocket Secure) 서버 실행 - SSL 적용
+    start_server = await websockets.serve(conversation, "0.0.0.0", 50007, ssl=ssl_context)
+    print("Secure WebSocket server started on wss://182.218.49.58:50007")
 
-    await server_task
+    # 두 서버를 동시에 실행하고 종료될 때까지 기다림
+    await asyncio.gather(server_task, start_server.wait_closed())
 
 if __name__ == "__main__":
+    ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    ssl_context.load_cert_chain(certfile="cert.pem", keyfile="key.pem")
+
     asyncio.run(main())

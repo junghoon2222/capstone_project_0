@@ -55,7 +55,6 @@ function Assistant({ websocket }) {
           const frameMean =
             dataArray.reduce((sum, value) => sum + Math.abs(value), 0) /
             dataArray.length;
-          console.log("Frame Mean:", frameMean);
 
           if (frameMean > threshold) {
             if (!isRecordingRef.current) {

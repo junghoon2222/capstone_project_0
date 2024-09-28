@@ -17,7 +17,7 @@ library.add(faChevronDown, faChevronUp);
 function App() {
   const [mode, setMode] = useState("active"); // 'active', 'standby', 'signup'
 
-  const [userName, setUserName] = useState("wjdgns's mirror");
+  const [userName, setUserName] = useState("jeonghun");
   const [data, setData] = useState({});
   const [userText, setUserText] = useState("녹음 중..");
   const [siriText, setSiriText] = useState(
@@ -33,7 +33,7 @@ function App() {
     let retryCount = 0;
 
     const connectWebSocket = () => {
-      websocketRef.current = new WebSocket("ws://182.218.49.58:50007");
+      websocketRef.current = new WebSocket("wss://182.218.49.58:50007");
 
       websocketRef.current.onopen = () => {
         console.log("Assistant WebSocket Connected");
@@ -43,10 +43,23 @@ function App() {
       websocketRef.current.onmessage = (event) => {
         const message = event.data;
 
-        if (message.startsWith("input ")) {
-          setUserText(message.slice(6));
-        } else if (message.startsWith("output ")) {
-          setSiriText(message.slice(7));
+        // 텍스트 메시지 처리
+        if (typeof message === "string") {
+          if (message.startsWith("input ")) {
+            setUserText(message.slice(6));
+          } else if (message.startsWith("output ")) {
+            setSiriText(message.slice(7));
+          }
+        }
+        // 바이너리 메시지 처리
+        else if (message instanceof Blob) {
+          // Blob 데이터는 바이너리로 수신됨, URL 객체 생성 후 오디오 재생
+          const audioBlob = message;
+          const audioUrl = URL.createObjectURL(audioBlob);
+
+          // 오디오 객체 생성 및 재생
+          const audio = new Audio(audioUrl);
+          audio.play();
         }
       };
 

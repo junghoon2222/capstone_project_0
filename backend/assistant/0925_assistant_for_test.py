@@ -495,13 +495,16 @@ async def main():
     # FastAPI 앱 실행
     config = uvicorn.Config(app, host="0.0.0.0", port=50006)
     server = uvicorn.Server(config)
+
+    # 비동기로 Uvicorn 서버 실행
     server_task = asyncio.create_task(server.serve())
 
-    # Audio 전송 소켓 서버 실행
-    start_server = websockets.serve(conversation, "0.0.0.0", 50007)
-    print("WebSocket server started on ws://182.218.49.58:50007")
-    await start_server
+    # WebSocket 서버 실행
+    start_server = await websockets.serve(conversation, "0.0.0.0", 50007)
 
+    print("WebSocket server started on ws://0.0.0.0:50007")
+    
+    # 서버를 계속 유지 (이 부분이 추가되어야 함)
     await server_task
 
 if __name__ == "__main__":

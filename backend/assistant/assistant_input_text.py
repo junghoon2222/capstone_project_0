@@ -430,8 +430,17 @@ async def conversation(websocket):
                 chat_messages.append({"role": "assistant", "content": answer})
                 print(answer)
                 await websocket.send("output " + answer)
+                
+                    # TTS를 실행하고 오디오 세그먼트를 생성
                 audio_segment = await tts(answer)
-                play(audio_segment)
+
+                # 메모리 버퍼에 파일을 저장하고 바이너리로 변환
+                buffer = io.BytesIO()
+                audio_segment.export(buffer, format="wav")
+                buffer.seek(0)
+ 
+                await websocket.send(buffer.read())
+                
                 if time.time() - init_time > 180:
                     chat_messages = deepcopy(_chat_messages_init)
                     print("3 minute has flew")

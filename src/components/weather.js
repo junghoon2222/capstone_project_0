@@ -9,7 +9,7 @@ function Weather() {
   const fetchWeather = async () => {
     try {
       const weatherResponse = await fetch(
-        `http://182.218.49.58:50006/get_weather`
+        `https://182.218.49.58:50006/get_weather`
       );
       if (!weatherResponse.ok) {
         throw new Error(`Error: ${weatherResponse.status}`);
