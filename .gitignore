@@ -1,0 +1,43 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+.vscode
+
+extracted_text.txt
+/backend/assistant/final_extracted_text.txt
+/backend/assistant/0925_assistant_for_test.py
+/backend/assistant/test.py
+/backend/assistant/weather_test.py
+/backend/assistant/0922.py
+/backend/assistant/chunking.py
+
+/backend/assistant/__pycache__
+# testing
+/coverage
+
+tts.ipynb
+weather_icons.txt
+
+notification.wav*
+
+# production
+/build
+/backend/vision/AdaFace
+/backend/vision/vision.ipynb
+/backend/vision/pose.ipynb
+/backend/vision/yolo11n-pose.pt
+/backend/vision/yolov8l-face.pt
+/backend/vision/face_detection_cpu.py
+/backend/vision/face_detection_gpu.py
+/backend/vision/face_embeddings.pkl
+/backend/vision/AdaFace
+# misc
+.DS_Store
+.env*
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
