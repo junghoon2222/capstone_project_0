@@ -25,6 +25,7 @@ notification.wav*
 
 # production
 /build
+/backend/vision/AdaFace/
 /backend/vision/AdaFace/inference.py
 /backend/vision/vision.ipynb
 /backend/vision/pose.ipynb
