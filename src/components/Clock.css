@@ -1,0 +1,21 @@
+.time {
+  font-size: 85px;
+  color: #f1f1f1;
+  text-align: center;
+  font-family: "GmarketSansLight";
+}
+
+.date {
+  font-size: 40px;
+  color: rgb(165, 165, 165);
+  margin-top: 10px;
+  text-align: center;
+  font-family: "GmarketSanslight";
+}
+
+.ampm {
+  font-size: 50px;
+  color: rgb(168, 170, 168);
+  font-family: "GmarketSansLight";
+  font-weight: bold;
+}
