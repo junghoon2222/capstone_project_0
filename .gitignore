@@ -33,7 +33,7 @@ notification.wav*
 /backend/vision/face_detection_cpu.py
 /backend/vision/face_detection_gpu.py
 /backend/vision/face_embeddings.pkl
-
+/backend/vision/AdaFace
 # misc
 .DS_Store
 .env*
