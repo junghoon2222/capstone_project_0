@@ -9,22 +9,19 @@ and Face Recognition
 
 ### AI assistant
 
-- Language: Python / FastAPI, websocket
+- Python / FastAPI, websocket
 - Hot-word Awake (porcupine)
 - Transcribe: openai Whisper v3-large
 - Crawling for Weather Information and Realtime Informations (From Naver)
-
-- API | openai: gpt-4o-mini / gpt-4o
+- API | openai: gpt-4o-mini
 
 ### Face-Recognition / Body Segmentation
+- Python / FastAPI, websocket
+- YOLOv11 / SAM2
 
-- Language: Python / FastAPI, websocket
-- YOLOv8 / SAM2
-
-## Frontend (Raspberry Pi 4)
+## Frontend
 
 ### OS: Ubuntu 20.04
 
 ### React
-
-- Language: Javascript / React.js
+Javascript / React.js
