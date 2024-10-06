@@ -15,9 +15,9 @@ and Face Recognition
 - Crawling for Weather Information and Realtime Informations (From Naver)
 - API | openai: gpt-4o-mini
 
-### Face-Recognition / Body Segmentation
+### Face-Recognition / Pose-Estimation
 - Python / FastAPI, websocket
-- YOLOv11 / SAM2
+- YOLOv11-pose / AdaFace
 
 ## Frontend
 
