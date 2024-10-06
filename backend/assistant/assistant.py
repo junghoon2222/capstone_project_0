@@ -44,19 +44,15 @@ def contains_korean(text):
     korean_pattern = re.compile(r"[\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F]")
     return bool(korean_pattern.search(text))
 
+def contains_special_characters(text):
+    special_char_pattern = re.compile(r"[^\w\s]")
+    return bool(special_char_pattern.search(text))
+
 def filter_text(text):
     if text is None or not text.strip():
         return True
-    if contains_japanese(text) and contains_english(text):
+    if not contains_korean(text):
         return True
-    if contains_japanese(text):
-        return True
-    if contains_english(text) and contains_korean(text):
-        return False
-    if contains_english(text):
-        return True
-    if contains_korean(text):
-        return False
     return False
 
 now = datetime.now()
@@ -100,7 +96,7 @@ _keyword_maker_init = [
         "role": "system",
         "content": f"""
         current date and time are {formatted_time}    
-
+        current location is 구미, so you should make keywords or a phrase related to 구미 when about weather or traffic.
         Your role is only to make keywords or a phrase to find out user's question from one's word.
         You'd better not put on any unnessesary words.
     """,
@@ -124,7 +120,7 @@ _html_rag_init = [
         Use friendly-tone.
         Only speak in Korean.
         have attention to the user's question.
-
+        Do not use '`'
      """,
     }
 ]
@@ -139,7 +135,7 @@ _chat_messages_init = [
         Limit your responses to a maximum of two sentences, and avoid using emojis or emoticons. 
         Use friendly-tone.
         Only speak in Korean.
-        
+        Do not use '`'
     """,
     }
 ]
@@ -231,7 +227,7 @@ async def transcribe(websocket):
             
             if mean_value < threshold:
                 silence_first_time = asyncio.get_event_loop().time()
-                while asyncio.get_event_loop().time() - silence_first_time < 1.2:
+                while asyncio.get_event_loop().time() - silence_first_time < 3:
                     message = await websocket.recv()
                     audio = np.frombuffer(message, dtype=np.float32)
                     abs_audio = np.abs(audio)*32768
@@ -259,7 +255,31 @@ async def transcribe(websocket):
 
         result = whisper_model.transcribe(resampled_audio)
         text = result["text"].strip()
-        if text in ['감사합니다.', 'MBC 뉴스 김성현입니다', '다음 영상에서 만나요!','.', '구독과 좋아요 부탁드립니다.','감사합니다']:
+        if text in ['감사합니다.',
+                    'MBC 뉴스 김성현입니다',
+                    '다음 영상에서 만나요!',
+                    '.',
+                    '구독과 좋아요 부탁드립니다.',
+                    '감사합니다',
+                    '시청해 주셔서 감사합니다.',
+                    'Thank you.',
+                    'Thank you. Thank you.',
+                    'Terima kasih.',
+                    'Thank you for listening.',
+                    'No.',
+                    'Bye.',
+                    'Thank you',
+                    'Thank you!',
+                    'Thank you Thank you',
+                    'Obrigada.',
+                    'Obrigado.',
+                    'Obrigado!',
+                    'Gracias.',
+                    'Obrigado por assistir.',
+                    'Всего доброго!',
+                    'E aí',
+                    'Thank you for watching!',
+                    'Thank you for watching.']:
             text = None
         # print("Transcription result:", text)
         return text
@@ -277,6 +297,11 @@ async def conversation(websocket):
     keyword_maker_init = deepcopy(_keyword_maker_init)
     html_rag_init = deepcopy(_html_rag_init)
     chat_messages = deepcopy(_chat_messages_init)
+    
+    prefix = "current date and time are "
+    content = chat_messages[0]["content"].strip()
+    start_index = content.find(prefix) + len(prefix)
+    end_index = start_index + len("YYYY-MM-DD HH:MM")
 
     while True: 
         input_message = await transcribe(websocket)
@@ -351,8 +376,10 @@ async def conversation(websocket):
             init_time = time.time()
             keyword_maker_init = deepcopy(_keyword_maker_init)
             html_rag_init = deepcopy(_html_rag_init)
+            
             formatted_time = datetime.now().strftime("%Y-%m-%d %H:%M")
-            html_rag_init[0]["content"] = html_rag_init[0]["content"].replace("{formatted_time}", formatted_time)  # 시간 업데이트
+            html_rag_init[0]["content"] = content[:start_index] + formatted_time + content[end_index:]
+            chat_messages[0]["content"] = content[:start_index] + formatted_time + content[end_index:]
 
 
         if query_class == "1":
@@ -378,8 +405,10 @@ async def conversation(websocket):
                 print(f"예외 발생: {e}")
 
             chat_messages.append({"role": "assistant", "content": answer})
+            
+            formatted_time = datetime.now().strftime("%Y-%m-%d %H:%M")
 
-            init_time = time.time()
+            chat_messages[0]["content"] = content[:start_index] + formatted_time + content[end_index:]
 
         while True:
 
@@ -444,44 +473,14 @@ async def conversation(websocket):
 
                 answer = html_rag.choices[0].message.content
                 print(answer)
-                
-                try:
-                    audio_segment = await tts(answer)
-                    if audio_segment is None:
-                        print("TTS 변환 실패, 기본 응답으로 대체합니다.")
-                        buffer = None
-                    else:
-                        buffer = io.BytesIO()
-                        audio_segment.export(buffer, format="wav")
-                        buffer.seek(0)
-                        await websocket.send("output " + answer)
-                        await websocket.send(buffer.read())
-                except Exception as e:
-                    print(f"예외 발생: {e}")
+                await websocket.send("output " + answer)
 
                 chat_messages.append({"role": "assistant", "content": answer})
 
                 html_rag_init = deepcopy(_html_rag_init)
                 formatted_time = datetime.now().strftime("%Y-%m-%d %H:%M")
-                html_rag_init[0]["content"] = html_rag_init[0]["content"].replace("{formatted_time}", formatted_time)
-
-                if time.time() - init_time > 120:
-                    chat_messages = deepcopy(_chat_messages_init)
-                    formatted_time = datetime.now().strftime("%Y-%m-%d %H:%M")
-                    chat_messages[0]["content"] = chat_messages[0]["content"].replace("{formatted_time}", formatted_time)
-
-                    print("대화 초기화")
-                    break
-
-            if query_class == "1":
-
-                chatter = client.chat.completions.create(
-                    model="gpt-4o-mini-2024-07-18", messages=chat_messages
-                )
-                answer = chatter.choices[0].message.content
-                chat_messages.append({"role": "assistant", "content": answer})
-                print(answer)
-                await websocket.send("output " + answer)
+                chat_messages[0]["content"] = content[:start_index] + formatted_time + content[end_index:]
+                print(chat_messages[0])
                 
                 try:
                     audio_segment = await tts(answer)
@@ -493,15 +492,58 @@ async def conversation(websocket):
                         audio_segment.export(buffer, format="wav")
                         buffer.seek(0)
                         await websocket.send(buffer.read())
+                        init_time = time.time()
                 except Exception as e:
                     print(f"예외 발생: {e}")
 
+
+
                 if time.time() - init_time > 120:
                     chat_messages = deepcopy(_chat_messages_init)
-                    formatted_time = datetime.now().strftime("%Y-%m-%d %H:%M")
-                    chat_messages[0]["content"] = chat_messages[0]["content"].replace("{formatted_time}", formatted_time)
                     print("대화 초기화")
                     break
+
+            if query_class == "1":
+                
+
+                chatter = client.chat.completions.create(
+                    model="gpt-4o-mini-2024-07-18", messages=chat_messages
+                )
+                
+                answer = chatter.choices[0].message.content
+                chat_messages.append({"role": "assistant", "content": answer})
+                print(answer)
+                await websocket.send("output " + answer)
+                formatted_time = datetime.now().strftime("%Y-%m-%d %H:%M")
+                chat_messages[0]["content"] = content[:start_index] + formatted_time + content[end_index:]
+                print(chat_messages[0])
+
+                try:
+                    audio_segment = await tts(answer)
+                    if audio_segment is None:
+                        print("TTS 변환 실패, 기본 응답으로 대체합니다.")
+                        buffer = None
+                    else:
+                        buffer = io.BytesIO()
+                        audio_segment.export(buffer, format="wav")
+                        buffer.seek(0)
+                        await websocket.send(buffer.read())
+                        init_time = time.time()
+
+                        
+
+                except Exception as e:
+                    print(f"Error: {e}")
+                    
+
+                if time.time() - init_time > 120:
+                    chat_messages = deepcopy(_chat_messages_init)
+                    print("Conversation initialized")
+                    break
+                
+
+
+
 
 
 
@@ -551,10 +593,8 @@ async def get_weather():
                 return {"error": "Failed to fetch weather data"}
 
 
-# SSL 인증서 및 키 파일 설정
 
 async def main():
-    # FastAPI 앱 실행
     config = uvicorn.Config(app, host="0.0.0.0", port=50006)
     server = uvicorn.Server(config)
     server_task = asyncio.create_task(server.serve())
@@ -562,7 +602,6 @@ async def main():
     start_server = await websockets.serve(conversation, "0.0.0.0", 50007)
     print("Secure WebSocket server started on ws://182.218.49.58:50007")
 
-    # 두 서버를 동시에 실행하고 종료될 때까지 기다림
     await asyncio.gather(server_task, start_server.wait_closed())
 
 if __name__ == "__main__":

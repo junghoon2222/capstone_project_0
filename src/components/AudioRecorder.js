@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 
 const AudioRecorder = forwardRef(({ setSiriText, setUserText }, ref) => {
   const [isRecording, setIsRecording] = useState(false);
@@ -6,7 +12,7 @@ const AudioRecorder = forwardRef(({ setSiriText, setUserText }, ref) => {
   const audioContextRef = useRef(null);
   const mediaStreamRef = useRef(null);
   const workletNodeRef = useRef(null);
-  const audioSourceRef = useRef(null); // 기존 source를 참조하기 위한 ref
+  const audioSourceRef = useRef(null);
 
   useEffect(() => {
     // 컴포넌트가 마운트될 때 WebSocket 연결 설정
@@ -15,9 +21,9 @@ const AudioRecorder = forwardRef(({ setSiriText, setUserText }, ref) => {
 
     ws.onmessage = async (event) => {
       const message = event.data;
-      
+
       if (typeof message === "string") {
-        if (message.startsWith("input ")) { 
+        if (message.startsWith("input ")) {
           setUserText(message.slice(6));
         } else if (message.startsWith("output ")) {
           setSiriText(message.slice(7));
@@ -27,7 +33,7 @@ const AudioRecorder = forwardRef(({ setSiriText, setUserText }, ref) => {
         const arrayBuffer = await message.arrayBuffer();
         const audioContext = new AudioContext();
         const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-        
+
         // 기존의 source 중지
         if (audioSourceRef.current) {
           audioSourceRef.current.stop();
