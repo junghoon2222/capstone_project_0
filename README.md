@@ -16,12 +16,14 @@ and Face Recognition
 - API | openai: gpt-4o-mini
 
 ### Face-Recognition / Pose-Estimation
+
 - Python / FastAPI, websocket
 - YOLOv11-pose / AdaFace
 
 ## Frontend
 
-### OS: Ubuntu 20.04
+### OS: Ubuntu 22.04
 
 ### React
+
 Javascript / React.js
